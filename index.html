@@ -1,336 +1,80 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Муза — Твой оранжевый ИИ-соавтор</title>
-    <style>
-        :root {
-            --primary: #ff6b1a;
-            --primary-dark: #e65100;
-            --secondary: #fff3e0;
-            --accent: #ff9800;
-            --text-main: #4e342e;
-            --bg-card: #ffffff;
-            --border-color: #ffe0b2;
-        }
-
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--secondary);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
-            width: 100%;
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 26, 0.3);
-            box-sizing: border-box;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2.8rem;
-            letter-spacing: -1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        header p {
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 10px auto 0;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 25px;
-            width: 95%;
-            max-width: 1200px;
-            padding: 30px 0 50px;
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .input-box, .result-box {
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(230, 81, 0, 0.08);
-            border: 1px solid var(--border-color);
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: var(--primary-dark);
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1.1rem;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--primary);
-        }
-
-        #poemOutput {
-            width: 100%;
-            height: 350px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1.25rem;
-            font-family: 'Georgia', serif;
-            line-height: 1.7;
-            resize: vertical;
-            outline: none;
-            color: var(--text-main);
-            background: #fffaf0;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-
-        #poemOutput:focus {
-            border-color: var(--accent);
-        }
-
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        button {
-            padding: 13px 20px;
-            border: none;
-            border-radius: 12px;
-            background-color: var(--primary);
-            color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        button:disabled {
-            background-color: #bcaaa4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-continue { background-color: #00b894; }
-        .btn-continue:hover { background-color: #008f73; }
-        .btn-speak { background-color: var(--accent); }
-
-        #loading {
-            display: none;
-            color: var(--primary-dark);
-            font-weight: bold;
-            margin-top: 15px;
-            padding: 10px;
-            background: var(--secondary);
-            border-radius: 8px;
-            text-align: center;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
-        }
-
-        .sidebar { display: flex; flex-direction: column; gap: 20px; }
-        .card {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 5px solid var(--accent);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-        }
-
-        @media (max-width: 850px) {
-            .container { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Муза — генератор стихов</title>
+<style>
+body { font-family: Arial, sans-serif; text-align: center; background: #fff3e0; margin:0; padding:20px;}
+input, textarea { width: 80%; margin: 10px 0; padding: 10px; border-radius:8px; border:1px solid #ffa500;}
+button { padding: 10px 20px; margin: 5px; border:none; border-radius:8px; background:#ff6b1a; color:white; cursor:pointer;}
+button:hover { background:#e65100;}
+textarea { height: 200px; resize: vertical; }
+#loading { display:none; font-weight:bold; color:#e65100; margin:10px;}
+</style>
 </head>
 <body>
 
-<header>
-    <h1>Муза — ИИ-Соавтор</h1>
-    <p>Начните писать сами, или дайте тему ИИ, а затем попросите его продолжить мысль.</p>
-</header>
+<h1>Муза — генератор стихов</h1>
 
-<main class="container">
-    <div class="main-content">
-        <section class="input-box">
-            <label for="poemTopic">1. Задайте тему (или начните писать ниже сами):</label>
-            <input type="text" id="poemTopic" placeholder="Например: 'осенний лес'">
-            <div class="btn-group">
-                <button id="generateBtn" onclick="generatePoem()">✨ Написать с нуля</button>
-            </div>
-        </section>
+<input id="topic" placeholder="Тема стиха (например: осенний лес)" />
+<br>
+<button onclick="generate()">✨ Написать стих</button>
+<button onclick="continuePoem()">✍️ Продолжить стих</button>
 
-        <section class="result-box">
-            <label>2. Рабочая область (пишите и редактируйте):</label>
-            <textarea id="poemOutput" placeholder="Напишите здесь первую строчку, например: 'Тихо падает снег за окном...' и нажмите 'Продолжить стих'"></textarea>
-            
-            <div id="loading">Муза думает и подбирает рифмы...</div>
+<div id="loading">ИИ думает...</div>
 
-            <div class="btn-group">
-                <button id="continueBtn" class="btn-continue" onclick="continuePoem()">✍️ Продолжить стих</button>
-                <button class="btn-speak" onclick="speakPoem()">🔊 Послушать</button>
-                <button style="background: #e0e0e0; color: #333;" onclick="clearText()">Очистить</button>
-            </div>
-        </section>
-    </div>
-
-    <aside class="sidebar">
-        <div class="card">
-            <h3 style="color: var(--primary-dark); margin-top: 0;">Как стать соавтором?</h3>
-            <ol style="padding-left: 15px; font-size: 0.9rem; line-height: 1.5; color: #555;">
-                <li>Напишите свою строчку в текстовое поле.</li>
-                <li>Нажмите <strong>«Продолжить стих»</strong>.</li>
-                <li>ИИ проанализирует ваш ритм и допишет еще несколько строк!</li>
-                <li>Отредактируйте результат и продолжайте творить.</li>
-            </ol>
-        </div>
-    </aside>
-</main>
+<br>
+<textarea id="output" placeholder="Здесь появится стих..."></textarea>
 
 <script>
-    // ================================================================
-    // ВСТАВЬ СВОЙ КЛЮЧ GEMINI НИЖЕ (внутри кавычек)
-    // ================================================================
-    const GEMINI_API_KEY = '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'; 
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+// ВСТАВЬ СВОЙ OPENAI API КЛЮЧ ЗДЕСЬ
+const OPENAI_API_KEY = "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";
 
-    function checkKey() {
-        if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === '') {
-            alert("ОШИБКА: Для работы нейросети нужен API-ключ Google Gemini. Вставьте его в код!");
-            return false;
-        }
-        return true;
+async function askAI(prompt) {
+    const loader = document.getElementById('loading');
+    loader.style.display = 'block';
+    try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + OPENAI_API_KEY,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [{ role: "user", content: prompt }]
+            })
+        });
+
+        const data = await res.json();
+        return data.choices[0].message.content;
+
+    } catch (e) {
+        alert("Ошибка при подключении к OpenAI");
+        console.error(e);
+    } finally {
+        loader.style.display = 'none';
     }
+}
 
-    // Функция 1: Написать стих с нуля по теме
-    async function generatePoem() {
-        if (!checkKey()) return;
-        
-        const topicInput = document.getElementById('poemTopic').value;
-        if (!topicInput) return alert("Введите тему!");
+async function generate() {
+    const topic = document.getElementById("topic").value.trim();
+    if(!topic) return alert("Введите тему стиха!");
+    const text = await askAI("Напиши красивое стихотворение на тему: " + topic);
+    document.getElementById("output").value = text;
+}
 
-        const promptText = `Напиши красивое, художественное стихотворение на тему: "${topicInput}". Используй классическую рифмовку и ритм.`;
-        await fetchAI(promptText, false);
-    }
-
-    // Функция 2: Продолжить уже начатый стих (НОВАЯ ФИШКА)
-    async function continuePoem() {
-        if (!checkKey()) return;
-
-        const currentText = document.getElementById('poemOutput').value.trim();
-        if (!currentText) return alert("Сначала напишите хотя бы одну строчку в текстовом поле!");
-
-        const promptText = `Ты — профессиональный поэт. Пользователь начал писать стихотворение. Твоя задача: гармонично продолжить его. Сохрани текущий размер, ритм, стиль и настроение. Допиши 1 или 2 четверостишия к этому тексту:\n\n"${currentText}"\n\nВ ответе напиши ТОЛЬКО продолжение, без вступительных слов.`;
-        
-        await fetchAI(promptText, true);
-    }
-
-    // Общая функция для работы с API
-    async function fetchAI(promptText, isContinuing) {
-        const outputArea = document.getElementById('poemOutput');
-        const loader = document.getElementById('loading');
-        const btns = document.querySelectorAll('button');
-
-        // Выключаем кнопки на время загрузки
-        btns.forEach(b => b.disabled = true);
-        loader.style.display = 'block';
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }]
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Ошибка HTTP: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (data.candidates && data.candidates[0].content.parts[0].text) {
-                let aiResponse = data.candidates[0].content.parts[0].text.replace(/[*#`@]/g, ''); 
-                
-                if (isContinuing) {
-                    // Если мы продолжаем, добавляем текст с новой строки
-                    outputArea.value += "\n\n" + aiResponse;
-                    // Скроллим вниз
-                    outputArea.scrollTop = outputArea.scrollHeight; 
-                } else {
-                    // Если пишем с нуля, заменяем текст
-                    outputArea.value = aiResponse;
-                }
-            } else {
-                throw new Error("Пустой ответ от ИИ.");
-            }
-
-        } catch (error) {
-            console.error("Ошибка:", error);
-            alert("Произошла ошибка при подключении к ИИ. Проверьте ваш API-ключ в консоли.");
-        } finally {
-            btns.forEach(b => b.disabled = false);
-            loader.style.display = 'none';
-        }
-    }
-
-    function speakPoem() {
-        const text = document.getElementById('poemOutput').value;
-        if (!text) return;
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'ru-RU';
-        msg.pitch = 1.0;
-        msg.rate = 0.9;
-        window.speechSynthesis.speak(msg);
-    }
-
-    function clearText() {
-        document.getElementById('poemOutput').value = '';
-        document.getElementById('poemTopic').value = '';
-    }
+async function continuePoem() {
+    const current = document.getElementById("output").value.trim();
+    if(!current) return alert("Сначала напишите хотя бы одну строчку!");
+    const text = await askAI("Продолжи это стихотворение, сохрани стиль и рифму:\n" + current);
+    document.getElementById("output").value += "\n\n" + text;
+}
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
