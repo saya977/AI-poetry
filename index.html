@@ -6,11 +6,13 @@
 <title>Муза — генератор стихов</title>
 <style>
 body { font-family: Arial, sans-serif; text-align: center; background: #fff3e0; margin:0; padding:20px;}
-input, textarea { width: 80%; margin: 10px 0; padding: 10px; border-radius:8px; border:1px solid #ffa500;}
-button { padding: 10px 20px; margin: 5px; border:none; border-radius:8px; background:#ff6b1a; color:white; cursor:pointer;}
+input, textarea { width: 80%; max-width: 600px; margin: 10px 0; padding: 10px; border-radius:8px; border:1px solid #ffa500; font-size: 16px;}
+button { padding: 10px 20px; margin: 5px; border:none; border-radius:8px; background:#ff6b1a; color:white; cursor:pointer; font-size: 16px; font-weight: bold;}
 button:hover { background:#e65100;}
-textarea { height: 200px; resize: vertical; }
-#loading { display:none; font-weight:bold; color:#e65100; margin:10px;}
+button:disabled { background:#ccc; cursor:not-allowed;}
+textarea { height: 250px; resize: vertical; line-height: 1.5; font-family: 'Georgia', serif; }
+#loading { display:none; font-weight:bold; color:#e65100; margin:10px; animation: pulse 1s infinite;}
+@keyframes pulse { 50% { opacity: 0.5; } }
 </style>
 </head>
 <body>
@@ -19,21 +21,32 @@ textarea { height: 200px; resize: vertical; }
 
 <input id="topic" placeholder="Тема стиха (например: осенний лес)" />
 <br>
-<button onclick="generate()">✨ Написать стих</button>
-<button onclick="continuePoem()">✍️ Продолжить стих</button>
+<button id="btnGen" onclick="generate()">✨ Написать стих</button>
+<button id="btnCont" onclick="continuePoem()">✍️ Продолжить стих</button>
 
-<div id="loading">ИИ думает...</div>
+<div id="loading">Муза думает...</div>
 
 <br>
 <textarea id="output" placeholder="Здесь появится стих..."></textarea>
 
 <script>
-// ВСТАВЬ СВОЙ OPENAI API КЛЮЧ ЗДЕСЬ
-const OPENAI_API_KEY = "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";
+// ВСТАВЬ СВОЙ OPENAI API КЛЮЧ ЗДЕСЬ (между кавычками)
+const OPENAI_API_KEY = "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";
 
 async function askAI(prompt) {
+    if (!OPENAI_API_KEY || OPENAI_API_KEY.trim() === "") {
+        alert("ОШИБКА: Вы забыли вставить ключ OPENAI_API_KEY в код!");
+        return null;
+    }
+
     const loader = document.getElementById('loading');
+    const btnGen = document.getElementById('btnGen');
+    const btnCont = document.getElementById('btnCont');
+    
     loader.style.display = 'block';
+    btnGen.disabled = true;
+    btnCont.disabled = true;
+
     try {
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
@@ -48,13 +61,22 @@ async function askAI(prompt) {
         });
 
         const data = await res.json();
+
+        // Проверяем, есть ли ошибка в ответе от сервера
+        if (!res.ok) {
+            throw new Error(data.error?.message || `Ошибка HTTP: ${res.status}`);
+        }
+
         return data.choices[0].message.content;
 
     } catch (e) {
-        alert("Ошибка при подключении к OpenAI");
-        console.error(e);
+        console.error("Детали ошибки:", e);
+        alert(`СИСТЕМНАЯ ОШИБКА:\n${e.message}\n\nЕсли написано "Failed to fetch", обязательно включите VPN!`);
+        return null;
     } finally {
         loader.style.display = 'none';
+        btnGen.disabled = false;
+        btnCont.disabled = false;
     }
 }
 
@@ -62,19 +84,16 @@ async function generate() {
     const topic = document.getElementById("topic").value.trim();
     if(!topic) return alert("Введите тему стиха!");
     const text = await askAI("Напиши красивое стихотворение на тему: " + topic);
-    document.getElementById("output").value = text;
+    if (text) document.getElementById("output").value = text;
 }
 
 async function continuePoem() {
     const current = document.getElementById("output").value.trim();
     if(!current) return alert("Сначала напишите хотя бы одну строчку!");
-    const text = await askAI("Продолжи это стихотворение, сохрани стиль и рифму:\n" + current);
-    document.getElementById("output").value += "\n\n" + text;
+    const text = await askAI("Продолжи это стихотворение, сохрани стиль и рифму. В ответе напиши ТОЛЬКО продолжение:\n\n" + current);
+    if (text) document.getElementById("output").value += "\n\n" + text;
 }
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
