@@ -3,21 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <title>Генератор стихов</title>
+
 <style>
-  body { font-family: Arial; text-align: center; padding: 30px; }
-  input { padding: 10px; width: 300px; }
-  button { padding: 10px 20px; margin-top: 10px; }
-  pre { white-space: pre-wrap; margin-top: 20px; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #ff7e00, #ffb347);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+}
+
+.container {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+input {
+  width: 80%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+button {
+  margin-top: 15px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  background: #ff8c00;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #ff6a00;
+  transform: scale(1.05);
+}
+
+.result {
+  margin-top: 20px;
+  white-space: pre-wrap;
+  text-align: left;
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
 </style>
 </head>
+
 <body>
 
-<h2>Введи тему:</h2>
-<input type="text" id="topic" placeholder="например: первая любовь">
-<br>
-<button onclick="generate()">Получить стих</button>
+<div class="container">
+  <h2>🟠 Генератор стихов</h2>
 
-<pre id="result"></pre>
+  <input type="text" id="topic" placeholder="Например: любовь, город, осень">
+  <br>
+  <button onclick="generate()">Получить стих</button>
+
+  <div class="result" id="result"></div>
+</div>
 
 <script>
 const poems = {
@@ -488,13 +551,19 @@ const poems = {
 };
 
 function generate() {
-  const topic = document.getElementById("topic").value.toLowerCase().trim();
-  
-  if (poems[topic]) {
-    document.getElementById("result").innerText = poems[topic];
-  } else {
-    document.getElementById("result").innerText = "❌ Тема не найдена";
+  const input = document.getElementById("topic").value.toLowerCase().trim();
+
+  let found = null;
+
+  for (let key in poems) {
+    if (key.includes(input)) {
+      found = poems[key];
+      break;
+    }
   }
+
+  document.getElementById("result").innerText =
+    found ? found : "❌ Тема не найдена";
 }
 </script>
 
