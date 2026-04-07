@@ -1,76 +1,190 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Генератор стихов</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Муза — Твой оранжевый ИИ-соавтор</title>
+    <style>
+        :root {
+            --primary: #ff6b1a;
+            --primary-dark: #e65100;
+            --secondary: #fff3e0;
+            --accent: #ff9800;
+            --text-main: #4e342e;
+            --bg-card: #ffffff;
+            --border-color: #ffe0b2;
+        }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #ff7e00, #ffb347);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: white;
-}
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--secondary);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-.container {
-  background: rgba(0, 0, 0, 0.35);
-  padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 600px;
-  text-align: center;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            width: 100%;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 26, 0.3);
+            box-sizing: border-box;
+        }
 
-h2 {
-  margin-bottom: 20px;
-}
+        header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            letter-spacing: -1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
 
-input {
-  width: 80%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-}
+        header p {
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 10px auto 0;
+        }
 
-button {
-  margin-top: 15px;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 10px;
-  background: #ff8c00;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            width: 95%;
+            max-width: 1200px;
+            padding: 30px 0 50px;
+        }
 
-button:hover {
-  background: #ff6a00;
-  transform: scale(1.05);
-}
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-.result {
-  margin-top: 20px;
-  white-space: pre-wrap;
-  text-align: left;
-  background: rgba(255,255,255,0.1);
-  padding: 15px;
-  border-radius: 10px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-</style>
+        .input-box, .result-box {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(230, 81, 0, 0.08);
+            border: 1px solid var(--border-color);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        #poemOutput {
+            width: 100%;
+            height: 350px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.25rem;
+            font-family: 'Georgia', serif;
+            line-height: 1.7;
+            resize: vertical;
+            outline: none;
+            color: var(--text-main);
+            background: #fffaf0;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        #poemOutput:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 13px 20px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #bcaaa4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-continue { background-color: #00b894; }
+        .btn-continue:hover { background-color: #008f73; }
+        .btn-speak { background-color: var(--accent); }
+
+        #loading {
+            display: none;
+            color: var(--primary-dark);
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 10px;
+            background: var(--secondary);
+            border-radius: 8px;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+        @media (max-width: 850px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
+
 
 <div class="container">
   <h2>🟠 Генератор стихов</h2>
